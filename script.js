@@ -1,6 +1,5 @@
 function loadMessage(textField) {
     chrome.storage.sync.get(null, function(items) {
-        console.log(items)
         var msg = items['message'];
         textField.value = msg === undefined ? 'edit this message' : msg;
     });
@@ -10,7 +9,6 @@ function storeMessage(message) {
     var items = {};
     items['message'] = message;
     chrome.storage.sync.set(items);
-    console.log('saved');
 }
 
 function textFieldInputEventHandler(event) {
