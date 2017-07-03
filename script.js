@@ -1,24 +1,27 @@
 function loadMessage(textField) {
     chrome.storage.sync.get(null, function(items) {
-        var msg = items[textField.name];
-        var loadedMessage = (msg === undefined)
-                            ? 'click and edit this message'
-                            : msg;
-        textField.value = loadedMessage;
+        console.log(items)
+        var msg = items['message'];
+        textField.value = msg === undefined ? 'edit this message' : msg;
     });
 }
 
-function storeMessage(event) {
+function storeMessage(message) {
     var items = {};
-    items[event.target.name] = event.target.value;
-    chrome.storage.sync.set(items)
+    items['message'] = message;
+    chrome.storage.sync.set(items);
+    console.log('saved');
+}
+
+function textFieldInputEventHandler(event) {
+    storeMessage(event.target.value);
 }
 
 function debounce(callback, ms) {
     var id = null;
-    return function(e) {
+    return function(event) {
         clearTimeout(id);
-        id = setTimeout(callback.bind(window, e), ms);
+        id = setTimeout(callback.bind(window, event), ms);
     }
 }
 
@@ -30,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 500ms is the min delay to prevent exceeding on any possible input
     // but closing the tab within the window of 500ms after typing will result in data loss
     // 200ms is a compromise
-    textField.addEventListener('input', debounce(storeMessage, 200));
+    textField.addEventListener('input', debounce(textFieldInputEventHandler, 200));
 
     chrome.storage.onChanged.addListener(function() {
         // If you load while the user is typing – it can potentially erase recent input,
